@@ -1,7 +1,10 @@
 # coding: utf-8
 import os
+import random
 import requests
+import time
 from bs4 import BeautifulSoup
+from splinter.browser import Browser
 
 
 def download_file(url, filedir=None):
@@ -47,7 +50,7 @@ class EmojiImporter(object):
 
         self.emojis = []
 
-    def all_the_things(self):
+    def get_all_the_things(self):
         req = requests.get('https://www.hipchat.com/emoticons')
         soup = BeautifulSoup(req.content)
         divs = soup.findAll('div', {'class': 'emoticon-block'})
@@ -61,7 +64,37 @@ class EmojiImporter(object):
 
         print(self.emojis)
 
+    def upload_all_the_things(self):
+        self.browser = Browser('chrome')
+        browser = self.browser
+
+        url = 'https://{}.slack.com/?redir=/customize/emoji'
+        url = url.format(self.slack_team)
+        browser.visit(url)
+
+        browser.fill('email', self.slack_email)
+        browser.fill('password', self.slack_pass)
+
+        keep_me = browser.find_by_name('remember')[0]
+        keep_me.uncheck()
+
+        sign_in = browser.find_by_id('signin_btn')[0]
+        sign_in.click()
+
+        for emoji in self.emojis:
+            browser.fill('name', emoji.name)
+            browser.fill('img', emoji.imagepath)
+            submit = browser.find_by_value('Save New Emoji')[0]
+            submit.click()
+            time.sleep(1 + random.randrange(1, 20) / 10)
+
+    def yougotitdude(self):
+        if getattr(self, 'browser'):
+            self.browser.quit()
+
 
 if __name__ == '__main__':
     importer = EmojiImporter()
-    importer.all_the_things()
+    importer.get_all_the_things()
+    importer.upload_all_the_things()
+    importer.yougotitdude()
