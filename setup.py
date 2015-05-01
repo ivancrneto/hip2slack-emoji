@@ -15,6 +15,7 @@ def read(*parts):
     return codecs.open(os.path.join(here, *parts), 'r').read()
 
 long_description = read('README.rst')
+requirements = read('requirements.txt')
 
 
 class PyTest(TestCommand):
@@ -35,7 +36,7 @@ setup(
     license='MIT License',
     author='Ivan Rocha',
     tests_require=['pytest'],
-    install_requires=read('requirements.txt'),
+    install_requires=requirements,
     cmdclass={'test': PyTest},
     author_email='ivan.cr.neto@gmail.com',
     description='Importer of Hipchat emojis to Slack',
