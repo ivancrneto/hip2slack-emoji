@@ -14,7 +14,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 def read(*parts):
     return codecs.open(os.path.join(here, *parts), 'r').read()
 
-long_description = read('README.md')
+long_description = read('README.rst')
 
 
 class PyTest(TestCommand):
