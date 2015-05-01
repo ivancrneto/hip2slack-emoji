@@ -60,9 +60,9 @@ class EmojiImporter(object):
             img = div.find('img')
             img_url = img.attrs['src']
             filepath = download_file(img_url, filedir='/tmp/emojis')
-            self.emojis.append(Emoji(name, filepath))
-
-        print(self.emojis)
+            emoji = Emoji(name, filepath)
+            self.emojis.append(emoji)
+            print('Downloaded: {}...'.format(emoji))
 
     def upload_all_the_things(self):
         self.browser = Browser('chrome')
