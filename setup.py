@@ -1,6 +1,7 @@
 # coding: utf-8
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
+import codecs
 import io
 import os
 import sys
@@ -10,14 +11,8 @@ import hip2slack_emoji
 here = os.path.abspath(os.path.dirname(__file__))
 
 
-def read(*filenames, **kwargs):
-    encoding = kwargs.get('encoding', 'utf-8')
-    sep = kwargs.get('sep', '\n')
-    buf = []
-    for filename in filenames:
-        with io.open(filename, encoding=encoding) as f:
-            buf.append(f.read())
-    return sep.join(buf)
+def read(*parts):
+    return codecs.open(os.path.join(here, *parts), 'r').read()
 
 long_description = read('README.md')
 
