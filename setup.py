@@ -43,6 +43,9 @@ setup(
     long_description=long_description,
     packages=['hip2slack_emoji'],
     include_package_data=True,
+    package_data = {
+        'requirements': ['requirements.txt'],
+    },
     platforms='any',
     classifiers=[
         'Programming Language :: Python',
