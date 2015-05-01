@@ -42,6 +42,9 @@ setup(
     description='Importer of Hipchat emojis to Slack',
     long_description=long_description,
     packages=['hip2slack_emoji'],
+    entry_points={
+	'console_scripts': ['catchemall=hip2slack_emoji.problem:main']
+    },
     include_package_data=True,
     package_data = {
         '': ['requirements.txt'],

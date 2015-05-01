@@ -93,8 +93,12 @@ class EmojiImporter(object):
             self.browser.quit()
 
 
-if __name__ == '__main__':
+def main(*args, **kwargs):
     importer = EmojiImporter()
     importer.get_all_the_things()
     importer.upload_all_the_things()
     importer.yougotitdude()
+
+
+if __name__ == '__main__':
+    main()
