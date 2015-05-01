@@ -89,7 +89,7 @@ class EmojiImporter(object):
             time.sleep(1 + random.randrange(1, 20) / 10)
 
     def yougotitdude(self):
-        if getattr(self, 'browser'):
+        if getattr(self, 'browser', False):
             self.browser.quit()
 
 
