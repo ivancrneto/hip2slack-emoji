@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import getpass
 import random
 import requests
 import time
@@ -38,10 +39,10 @@ class Emoji(object):
 
 class EmojiImporter(object):
 
-    def __init__(self):
-        self.slack_team = os.environ.get('SLACK_TEAM')
-        self.slack_email = os.environ.get('SLACK_EMAIL')
-        self.slack_pass = os.environ.get('SLACK_PASS')
+    def __init__(self, slack_team=None, slack_email=None, slack_pass=None):
+        self.slack_team = slack_team or os.environ.get('SLACK_TEAM')
+        self.slack_email = slack_email or os.environ.get('SLACK_EMAIL')
+        self.slack_pass = slack_pass or os.environ.get('SLACK_PASS')
 
         if not all((self.slack_team, self.slack_email, self.slack_pass)):
             raise ValueError(
@@ -94,7 +95,18 @@ class EmojiImporter(object):
 
 
 def main(*args, **kwargs):
-    importer = EmojiImporter()
+    slack_team = os.environ.get('SLACK_TEAM')
+    slack_email = os.environ.get('SLACK_EMAIL')
+    slack_pass = os.environ.get('SLACK_PASS')
+
+    if not slack_team:
+        slack_team = input('Your Slack team as in http://<team>.slack.com/: ')
+    if not slack_email:
+        slack_email = input('Your Slack email: ')
+    if not slack_pass:
+        slack_pass = getpass.getpass('Your Slack password: ')
+
+    importer = EmojiImporter(slack_team, slack_email, slack_pass)
     importer.get_all_the_things()
     importer.upload_all_the_things()
     importer.yougotitdude()
