@@ -34,6 +34,14 @@ So you can run by doing this:
 
     (venv) $ env SLACK_TEAM=yourslackteam SLACK_EMAIL=your@slack.email SLACK_PASS=yourslackpass catchemall
 
+If you want, you can just run:
+
+.. code:: bash
+
+    (venv) $ catchemall
+
+And you will get an interactive prompt asking for Slack info.
+
 Make sure you have permissions in your team to upload emojis.
 
 Enjoy!
