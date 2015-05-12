@@ -87,6 +87,7 @@ class EmojiImporter(object):
             browser.fill('img', emoji.imagepath)
             submit = browser.find_by_value('Save New Emoji')[0]
             submit.click()
+            print('Uploaded: {}...'.format(emoji))
             time.sleep(1 + random.randrange(1, 20) / 10)
 
     def yougotitdude(self):
