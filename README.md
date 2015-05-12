@@ -20,7 +20,7 @@ You need thre environment variables:
 
 So you can run by doing this:
 ``` bash
-(venv) $ env SLACK_TEAM=yourslackteam SLACK_EMAIL=your@slack.email SLACK_PASS=yourslackpass python catchemall
+(venv) $ env SLACK_TEAM=yourslackteam SLACK_EMAIL=your@slack.email SLACK_PASS=yourslackpass catchemall
 ```
 
 Make sure you have permissions in your team to upload emojis.
