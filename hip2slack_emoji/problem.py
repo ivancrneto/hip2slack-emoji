@@ -83,12 +83,36 @@ class EmojiImporter(object):
         sign_in.click()
 
         for emoji in self.emojis:
+            if self.deal_with_it(emoji):
+                print('Uploaded: {}...'.format(emoji))
+            else:
+                print('We had problems uploading {}...'.format(emoji))
+
+    def deal_with_it(self, emoji):
+        browser = self.browser
+
+        def fill_and_submit(emoji):
             browser.fill('name', emoji.name)
             browser.fill('img', emoji.imagepath)
             submit = browser.find_by_value('Save New Emoji')[0]
             submit.click()
-            print('Uploaded: {}...'.format(emoji))
             time.sleep(1 + random.randrange(1, 20) / 10)
+
+        fill_and_submit(emoji)
+        errors = browser.find_by_css('.alert.alert_error')
+        for error in errors:
+            if 'There is already an emoji named' in error.text:
+                # for now appending 2 to emoji name and trying again
+                emoji.name += '2'
+                fill_and_submit(emoji)
+                errors = browser.find_by_css('.alert.alert_error')
+                if errors:
+                    return False
+
+        success = browser.find_by_css('.alert.alert_success')
+        for s in success:
+            if 'Your new emoji has been saved' in s.text:
+                return True
 
     def yougotitdude(self):
         if getattr(self, 'browser', False):
