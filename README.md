@@ -1,5 +1,7 @@
 # hit2slack-emoji
 
+![https://img.shields.io/pypi/dm/hip2slack-emoji.svg](https://img.shields.io/pypi/dm/hip2slack-emoji.svg)
+
 Did you migrate from Hipchat to Slack and now miss the funny emojis? Your problems are over!
 
 ## Install
