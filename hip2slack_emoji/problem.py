@@ -92,22 +92,46 @@ class EmojiImporter(object):
         browser = self.browser
 
         def fill_and_submit(emoji):
+            browser.fill('name', '')
             browser.fill('name', emoji.name)
+            if (browser.is_element_present_by_css(
+                    '.c-alert__icon.c-icon--warning') and not
+                    emoji.name.endswith('2')):
+                emoji.name += '2'
+                browser.fill('name', '')
+                browser.fill('name', emoji.name)
+
             browser.fill('img', emoji.imagepath)
-            submit = browser.find_by_value('Save New Emoji')[0]
+            submit = browser.find_by_xpath(
+                '//button[contains(text(), "Save")]')[0]
+
             submit.click()
             time.sleep(1 + random.randrange(1, 20) / 10)
 
+        if not browser.is_element_present_by_css(
+                'button[emoji-type="emoji"]', wait_time=10):
+            raise Exception('Add emoji button not found')
+        initial_buttons = browser.find_by_css('button[emoji-type="emoji"]')
+        for btn in initial_buttons:
+            if btn.visible:
+                btn.click()
+
         fill_and_submit(emoji)
-        errors = browser.find_by_css('.alert.alert_error')
+        errors = browser.find_by_css('.c-alert.c-alert--level_error')
         for error in errors:
-            if 'There is already an emoji named' in error.text:
+            text = error.text
+
+            if any(['is already in use by another emoji' in text,
+                    'Mind trying a different name' in text]):
                 # for now appending 2 to emoji name and trying again
                 emoji.name += '2'
                 fill_and_submit(emoji)
-                errors = browser.find_by_css('.alert.alert_error')
+                errors = browser.find_by_css('.c-alert.c-alert--level_error')
+                errors += browser.find_by_css('.c-alert__icon.c-icon--warning')
                 if errors:
                     return False
+                else:
+                    break
 
         success = browser.find_by_css('.alert.alert_success')
         for s in success:
