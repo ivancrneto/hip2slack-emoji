@@ -69,7 +69,7 @@ class EmojiImporter(object):
         self.browser = Browser('chrome')
         browser = self.browser
 
-        url = 'https://{}.slack.com/?redir=/customize/emoji'
+        url = 'https://{}.slack.com/?redir=/customize/emoji&no_sso=1'
         url = url.format(self.slack_team)
         browser.visit(url)
 
