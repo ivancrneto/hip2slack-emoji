@@ -30,7 +30,7 @@ class PyTest(TestCommand):
         sys.exit(errcode)
 
 setup(
-    name='hip2slack-emoji',
+    name='hip2slack-emojis',
     version=hip2slack_emoji.__version__,
     url='http://github.com/ivancrneto/hip2slack-emoji/',
     license='MIT License',

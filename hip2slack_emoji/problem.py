@@ -39,12 +39,13 @@ class Emoji(object):
 
 class EmojiImporter(object):
 
-    def __init__(self, slack_team=None, slack_email=None, slack_pass=None):
+    def __init__(self, slack_team=None, slack_email=None, slack_pass=None, signin_myself=False):
         self.slack_team = slack_team or os.environ.get('SLACK_TEAM')
         self.slack_email = slack_email or os.environ.get('SLACK_EMAIL')
         self.slack_pass = slack_pass or os.environ.get('SLACK_PASS')
+        self.signin_myself = signin_myself
 
-        if not all((self.slack_team, self.slack_email, self.slack_pass)):
+        if not self.signin_myself and not all((self.slack_team, self.slack_email, self.slack_pass)):
             raise ValueError(
                 'Make sure to set SLACK_TEAM, SLACK_EMAIL and SLACK_PASS '
                 'environment variables')
@@ -52,35 +53,49 @@ class EmojiImporter(object):
         self.emojis = []
 
     def get_all_the_things(self):
-        req = requests.get('https://www.hipchat.com/emoticons')
-        soup = BeautifulSoup(req.content)
-        divs = soup.findAll('div', {'class': 'emoticon-block'})
-
-        for div in divs:
-            name = div.text.strip()[1:-1]
-            img = div.find('img')
-            img_url = img.attrs['src']
-            filepath = download_file(img_url, filedir='/tmp/emojis')
+        # req = requests.get('https://www.hipchat.com/emoticons')
+        # soup = BeautifulSoup(req.content)
+        # divs = soup.findAll('div', {'class': 'emoticon-block'})
+        #
+        # for div in divs:
+        #     name = div.text.strip()[1:-1]
+        #     img = div.find('img')
+        #     img_url = img.attrs['src']
+        #     filepath = download_file(img_url, filedir='/tmp/emojis')
+        #     emoji = Emoji(name, filepath)
+        #     self.emojis.append(emoji)
+        #     print('Downloaded: {}...'.format(emoji))
+        filenames = os.listdir(os.path.join(os.path.dirname(__file__), 'emojis'))[:1]
+        for filename in filenames:
+            name = filename.split('.')[0].split('-')[0]
+            filepath = os.path.join(os.path.join(os.path.dirname(__file__), 'emojis'), filename)
             emoji = Emoji(name, filepath)
             self.emojis.append(emoji)
-            print('Downloaded: {}...'.format(emoji))
 
     def upload_all_the_things(self):
         self.browser = Browser('chrome')
         browser = self.browser
 
-        url = 'https://{}.slack.com/?redir=/customize/emoji'
-        url = url.format(self.slack_team)
-        browser.visit(url)
+        if self.signin_myself:
+            url = 'https://{}.slack.com/sign_in_with_password?redir=/customize/emoji'
+            url = url.format(self.slack_team)
+            browser.visit(url)
+            input('Press any key after you have finished signed in: ')
+            url = 'https://{}.slack.com/customize/emoji'
+            browser.visit(url)
+        else:
+            url = 'https://{}.slack.com/sign_in_with_password?redir=/customize/emoji'
+            url = url.format(self.slack_team)
+            browser.visit(url)
 
-        browser.fill('email', self.slack_email)
-        browser.fill('password', self.slack_pass)
+            browser.fill('email', self.slack_email)
+            browser.fill('password', self.slack_pass)
 
-        keep_me = browser.find_by_name('remember')[0]
-        keep_me.uncheck()
+            keep_me = browser.find_by_name('remember')[0]
+            keep_me.uncheck()
 
-        sign_in = browser.find_by_id('signin_btn')[0]
-        sign_in.click()
+            sign_in = browser.find_by_id('signin_btn')[0]
+            sign_in.click()
 
         for emoji in self.emojis:
             if self.deal_with_it(emoji):
@@ -109,9 +124,9 @@ class EmojiImporter(object):
             time.sleep(1 + random.randrange(1, 20) / 10)
 
         if not browser.is_element_present_by_css(
-                'button[emoji-type="emoji"]', wait_time=10):
-            raise Exception('Add emoji button not found')
-        initial_buttons = browser.find_by_css('button[emoji-type="emoji"]')
+                'button[emojis-type="emojis"]', wait_time=10):
+            raise Exception('Add emojis button not found')
+        initial_buttons = browser.find_by_css('button[emojis-type="emojis"]')
         for btn in initial_buttons:
             if btn.visible:
                 btn.click()
@@ -121,9 +136,9 @@ class EmojiImporter(object):
         for error in errors:
             text = error.text
 
-            if any(['is already in use by another emoji' in text,
+            if any(['is already in use by another emojis' in text,
                     'Mind trying a different name' in text]):
-                # for now appending 2 to emoji name and trying again
+                # for now appending 2 to emojis name and trying again
                 emoji.name += '2'
                 fill_and_submit(emoji)
                 errors = browser.find_by_css('.c-alert.c-alert--level_error')
@@ -135,7 +150,7 @@ class EmojiImporter(object):
 
         success = browser.find_by_css('.alert.alert_success')
         for s in success:
-            if 'Your new emoji has been saved' in s.text:
+            if 'Your new emojis has been saved' in s.text:
                 return True
 
     def yougotitdude(self):
@@ -145,20 +160,22 @@ class EmojiImporter(object):
 
 def main(*args, **kwargs):
     slack_team = os.environ.get('SLACK_TEAM')
+    # signin_myself = os.environ.get('SIGNIN_MYSELF')
+    signin_myself = True
     slack_email = os.environ.get('SLACK_EMAIL')
     slack_pass = os.environ.get('SLACK_PASS')
 
     if not slack_team:
         slack_team = input('Your Slack team as in http://<team>.slack.com/: ')
-    if not slack_email:
+    if not signin_myself and not slack_email:
         slack_email = input('Your Slack email: ')
-    if not slack_pass:
+    if not signin_myself and not slack_pass:
         slack_pass = getpass.getpass('Your Slack password: ')
 
-    importer = EmojiImporter(slack_team, slack_email, slack_pass)
+    importer = EmojiImporter(slack_team, slack_email, slack_pass, signin_myself=bool(signin_myself))
     importer.get_all_the_things()
     importer.upload_all_the_things()
-    importer.yougotitdude()
+    # importer.yougotitdude()
 
 
 if __name__ == '__main__':
